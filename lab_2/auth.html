@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Учебная страница</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url("bg.jpg")no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        header,
+        footer {
+            background: #f0f0f0;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #000;
+        }
+
+        /* Форма аутентификации */
+        .auth-container {
+            background: url('bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            box-sizing: border-box;
+        }
+
+        .auth-form button {
+            margin-top: 12px;
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .auth-form input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="index.html#about">О сайте</a>
+            <a href="index.html#vulns">Уязвимости</a>
+            <a href="index.html#mitigations">Защита</a>
+            <a href="index.html#feedback">Обратная связь</a>
+            <a href="#">Аутентификация</a>
+        </nav>
+    </header>
+
+
+    <!-- Форма аутентификации -->
+    <section id="auth" class="auth-container">
+        <form class="auth-form" action="https://httpbin.org/post" method="post">
+            <h2>Аутентификация</h2>
+            <input type="text" name="login" placeholder="Логин" required>
+            <input type="password" name="password" placeholder="Пароль" required>
+            <input type="checkbox" name="remember"> Запомнить меня
+            <button type="submit">Войти</button>
+        </form>
+    </section>
+    <footer id="contacts">
+        <p>Контакты: andrejkondratenko523@gmail.com</p>
+        <p>&copy; 2025 Кондратенко Андрей 241-351</p>
+    </footer>
+</body>
+
+</html>
