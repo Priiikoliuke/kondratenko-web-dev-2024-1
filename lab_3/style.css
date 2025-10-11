@@ -10,13 +10,13 @@ body {
     color: #333;
     display: flex;
     flex-direction: column;
-    min-height: 100vh
+    min-height: 100px;
 }
 
 header {
     background: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, .1);
-    padding: 1rem
+    box-shadow: 0 2px 5px black;
+    padding: 10px;
 }
 
 nav {
@@ -31,12 +31,11 @@ nav a {
     color: #333;
     padding: 8px 16px;
     border-radius: 4px;
-    transition: .3s
 }
 
 nav a:hover {
     color: tomato;
-    background: rgba(255, 99, 71, .1)
+    background: #f5717186
 }
 
 nav a.active {
@@ -44,8 +43,7 @@ nav a.active {
 }
 
 main {
-    flex: 1;
-    max-width: 1000px;
+    text-align: center;
     margin: 0 auto;
     padding: 20px;
     width: 100%
@@ -69,7 +67,7 @@ footer {
 }
 
 .hero h1 {
-    font-size: 2.5rem;
+    font-size: 40px;
     margin-bottom: 10px
 }
 
@@ -104,10 +102,9 @@ footer {
     padding: 20px;
     border-radius: 10px;
     text-align: center;
-    flex: 1;
     min-width: 200px;
     max-width: 300px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .1)
+    box-shadow: 0 2px 8px grey;
 }
 
 .card h3 {
@@ -133,10 +130,8 @@ section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex: 1;
     min-width: 250px;
     max-width: 300px;
-    transition: .3s
 }
 
 .dish img {
@@ -148,6 +143,7 @@ section {
 .dish:hover {
     border: 2px solid tomato
 }
+
 
 .price {
     font-size: 1.3em;
@@ -165,7 +161,6 @@ button {
     padding: 8px 25px;
     margin-top: auto;
     cursor: pointer;
-    transition: .3s
 }
 
 .dish:hover button {
@@ -191,6 +186,6 @@ button {
     }
 
     .hero h1 {
-        font-size: 1.8rem
+        font-size: 30px
     }
 }
