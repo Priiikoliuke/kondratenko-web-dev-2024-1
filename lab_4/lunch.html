@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Собрать ланч</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="lunch.html" class="active">Собрать ланч</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Собрать ланч</h1>
+
+        <section id="dishes-container">
+            <!-- Блюда тут появятся из js -->
+        </section>
+
+        <section id="order-section">
+            <h2>Ваш заказ</h2>
+            <div id="order-empty">
+                <p>Ничего не выбрано</p>
+            </div>
+            <div id="order-items" style="display: none;">
+                <div class="order-category" id="soup-order">
+                    <h3>Супы</h3>
+                    <div class="order-item">
+                        <span>Блюдо не выбрано</span>
+                    </div>
+                </div>
+                <div class="order-category" id="main-order">
+                    <h3>Главные блюда</h3>
+                    <div class="order-item">
+                        <span>Блюдо не выбрано</span>
+                    </div>
+                </div>
+                <div class="order-category" id="drink-order">
+                    <h3>Напитки</h3>
+                    <div class="order-item">
+                        <span>Напиток не выбран</span>
+                    </div>
+                </div>
+                <div id="total" style="display: none;">
+                    <h3>Стоимость заказа</h3>
+                    <div class="order-item">
+                        <span>Итого:</span>
+                        <span class="price" id="total-price">0 ₽</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>+7 (777) 777-77-77 | orders@dailylunch.ru</p>
+        <p>&copy; 2025 Daily Lunch</p>
+    </footer>
+
+    <script>
+        const dishes = [
+            { keyword: 'chicken_soup', name: 'Куриный суп', price: 250, category: 'soup', count: '350 мл', image: 'https://img.freepik.com/free-photo/top-view-chicken-soup-bowl-served-with-feijoa-kompot-bread_140725-8866.jpg?w=740&q=80' },
+            { keyword: 'borscht', name: 'Борщ', price: 280, category: 'soup', count: '350 мл', image: 'https://img.freepik.com/free-photo/traditional-ukrainian-borscht-with-slices-brown-bread-soft-drink_140725-9202.jpg?w=740&q=80' },
+            { keyword: 'tom_yam', name: 'Том Ям', price: 300, category: 'soup', count: '350 мл', image: 'https://img.freepik.com/free-photo/delicious-shrimp-meal-top-view_23-2148771283.jpg?w=740&q=80' },
+            { keyword: 'carbonara', name: 'Паста Карбонара', price: 350, category: 'main', count: '300 г', image: 'https://img.freepik.com/free-photo/pasta-filled-with-cream-topped-with-pepper_140725-1828.jpg?w=740&q=80' },
+            { keyword: 'greek_salad', name: 'Греческий салат', price: 270, category: 'main', count: '250 г', image: 'https://img.freepik.com/free-photo/delicious-salad-plate-high-angle_23-2149598995.jpg?w=740&q=80' },
+            { keyword: 'chicken_vegetables', name: 'Курица с овощами', price: 320, category: 'main', count: '300 г', image: 'https://img.freepik.com/free-photo/thanksgiving-day-delicious-meal-arrangement_23-2149100093.jpg?w=740&q=80' },
+            { keyword: 'orange_juice', name: 'Апельсиновый фреш', price: 150, category: 'drink', count: '300 мл', image: 'https://img.freepik.com/free-photo/glass-orange-juice-placed-wood_1150-9661.jpg?w=740&q=80' },
+            { keyword: 'coffee', name: 'Кофе на выбор', price: 180, category: 'drink', count: '300 мл', image: 'https://img.freepik.com/free-photo/top-view-hot-espresso-with-brown-coffee-seeds-brown-wooden-desk-coffee-cup-drink_140725-28168.jpg?w=740&q=80' },
+            { keyword: 'mojito', name: 'Мохито', price: 160, category: 'drink', count: '400 мл', image: 'https://img.freepik.com/free-photo/slices-fruits-near-glass-drink-with-ice-herbs-table_23-2148107706.jpg?w=740&q=80' }
+        ];
+
+        const selected = {};
+        const categories = { soup: 'Супы', main: 'Главные блюда', drink: 'Напитки' };
+
+        window.onload = () => {
+            const container = document.getElementById('dishes-container');
+            Object.keys(categories).forEach(cat => {
+                const section = document.createElement('section');
+                section.innerHTML = `<h2>${categories[cat]}</h2><div class="menu" id="${cat}-menu"></div>`;
+                container.appendChild(section);
+                dishes.filter(d => d.category === cat).sort((a, b) => a.name.localeCompare(b.name))
+                    .forEach(d => {
+                        const div = document.createElement('div');
+                        div.className = 'dish';
+                        div.dataset.dish = d.keyword;
+                        div.innerHTML = `
+          <img src="${d.image}" alt="${d.name}">
+          <p>${d.name}</p><p>${d.count}</p><p class="price">${d.price} ₽</p>
+          <button>Добавить</button>`;
+                        div.querySelector('button').onclick = () => selectDish(d);
+                        section.querySelector('.menu').appendChild(div);
+                    });
+            });
+        };
+
+        function selectDish(d) {
+            selected[d.category] = d;
+            updateOrder();
+        }
+
+        function updateOrder() {
+            const cats = ['soup', 'main', 'drink'];
+            let total = 0, has = false;
+            cats.forEach(c => {
+                const e = document.getElementById(`${c}-order`).querySelector('.order-item');
+                if (selected[c]) { e.innerHTML = `<span>${selected[c].name}</span><span>${selected[c].price} ₽</span>`; total += selected[c].price; has = true; }
+                else e.innerHTML = `<span>${c === 'drink' ? 'Напиток' : 'Блюдо'} не выбран</span>`;
+            });
+            document.getElementById('order-empty').style.display = has ? 'none' : 'block';
+            document.getElementById('order-items').style.display = has ? 'block' : 'none';
+            document.getElementById('total').style.display = has ? 'block' : 'none';
+            document.getElementById('total-price').textContent = `${total} ₽`;
+        }
+    </script>
+</body>
+
+</html>
