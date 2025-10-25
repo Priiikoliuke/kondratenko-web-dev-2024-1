@@ -111,15 +111,19 @@
             document.getElementById('total-price').textContent=`${total} ₽`;
         }
 
-        // --- Отправка заказа на сервер ---
+
         document.getElementById('send-order').onclick = sendOrder;
 
         function sendOrder() {
             const cats = ['soup','main','drink'];
+
+            const hasSelected = cats.some(c => selected[c]);
+            if (!hasSelected) {
+                alert('Выберите хотя бы одно блюдо, прежде чем отправлять заказ.');
+                return;
+            }
             const orderData = {};
             cats.forEach(c => { orderData[c] = selected[c]?selected[c].keyword:null; });
-            orderData.date = new Date().toISOString();
-            orderData.customer = "Test User";
 
             fetch('https://httpbin.org/post', {
                 method: 'POST',
@@ -127,8 +131,8 @@
                 body: JSON.stringify(orderData)
             })
             .then(res => res.json())
-            .then(data => { alert('Заказ отправлен!'); })
-            .catch(err => { alert('Ошибка при отправке заказа'); });
+            .then(data => { console.log('Ответ сервера:', data); alert('Заказ отправлен! Для просмотра ответа - откройте в консоль'); })
+            .catch(err => { console.error('Ошибка отправки:', err); alert('Ошибка при отправке заказа'); });
         }
     </script>
 </body>
