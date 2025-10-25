@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
     <header>
         <nav>
@@ -21,41 +19,31 @@
         <h1>Собрать ланч</h1>
 
         <section id="dishes-container">
-            <!-- Блюда тут появятся из js -->
+            <!-- Блюда появятся из JS -->
         </section>
 
         <section id="order-section">
             <h2>Ваш заказ</h2>
-            <div id="order-empty">
-                <p>Ничего не выбрано</p>
-            </div>
+            <div id="order-empty"><p>Ничего не выбрано</p></div>
             <div id="order-items" style="display: none;">
                 <div class="order-category" id="soup-order">
                     <h3>Супы</h3>
-                    <div class="order-item">
-                        <span>Блюдо не выбрано</span>
-                    </div>
+                    <div class="order-item"><span>Блюдо не выбрано</span></div>
                 </div>
                 <div class="order-category" id="main-order">
                     <h3>Главные блюда</h3>
-                    <div class="order-item">
-                        <span>Блюдо не выбрано</span>
-                    </div>
+                    <div class="order-item"><span>Блюдо не выбрано</span></div>
                 </div>
                 <div class="order-category" id="drink-order">
                     <h3>Напитки</h3>
-                    <div class="order-item">
-                        <span>Напиток не выбран</span>
-                    </div>
+                    <div class="order-item"><span>Напиток не выбран</span></div>
                 </div>
                 <div id="total" style="display: none;">
                     <h3>Стоимость заказа</h3>
-                    <div class="order-item">
-                        <span>Итого:</span>
-                        <span class="price" id="total-price">0 ₽</span>
-                    </div>
+                    <div class="order-item"><span>Итого:</span><span class="price" id="total-price">0 ₽</span></div>
                 </div>
             </div>
+            <button id="send-order" style="margin-top:10px;padding:8px 12px;">Отправить заказ</button>
         </section>
     </main>
 
@@ -86,15 +74,18 @@
                 const section = document.createElement('section');
                 section.innerHTML = `<h2>${categories[cat]}</h2><div class="menu" id="${cat}-menu"></div>`;
                 container.appendChild(section);
-                dishes.filter(d => d.category === cat).sort((a, b) => a.name.localeCompare(b.name))
+
+                dishes.filter(d => d.category === cat).sort((a,b)=>a.name.localeCompare(b.name))
                     .forEach(d => {
                         const div = document.createElement('div');
                         div.className = 'dish';
                         div.dataset.dish = d.keyword;
                         div.innerHTML = `
-          <img src="${d.image}" alt="${d.name}">
-          <p>${d.name}</p><p>${d.count}</p><p class="price">${d.price} ₽</p>
-          <button>Добавить</button>`;
+                            <img src="${d.image}" alt="${d.name}">
+                            <p>${d.name}</p>
+                            <p>${d.count}</p>
+                            <p class="price">${d.price} ₽</p>
+                            <button>Добавить</button>`;
                         div.querySelector('button').onclick = () => selectDish(d);
                         section.querySelector('.menu').appendChild(div);
                     });
@@ -107,19 +98,38 @@
         }
 
         function updateOrder() {
-            const cats = ['soup', 'main', 'drink'];
-            let total = 0, has = false;
-            cats.forEach(c => {
-                const e = document.getElementById(`${c}-order`).querySelector('.order-item');
-                if (selected[c]) { e.innerHTML = `<span>${selected[c].name}</span><span>${selected[c].price} ₽</span>`; total += selected[c].price; has = true; }
-                else e.innerHTML = `<span>${c === 'drink' ? 'Напиток' : 'Блюдо'} не выбран</span>`;
+            const cats = ['soup','main','drink'];
+            let total=0,has=false;
+            cats.forEach(c=>{
+                const e=document.getElementById(`${c}-order`).querySelector('.order-item');
+                if(selected[c]) { e.innerHTML=`<span>${selected[c].name}</span><span>${selected[c].price} ₽</span>`; total+=selected[c].price; has=true;}
+                else e.innerHTML=`<span>${c==='drink'?'Напиток':'Блюдо'} не выбран</span>`;
             });
-            document.getElementById('order-empty').style.display = has ? 'none' : 'block';
-            document.getElementById('order-items').style.display = has ? 'block' : 'none';
-            document.getElementById('total').style.display = has ? 'block' : 'none';
-            document.getElementById('total-price').textContent = `${total} ₽`;
+            document.getElementById('order-empty').style.display=has?'none':'block';
+            document.getElementById('order-items').style.display=has?'block':'none';
+            document.getElementById('total').style.display=has?'block':'none';
+            document.getElementById('total-price').textContent=`${total} ₽`;
+        }
+
+        // --- Отправка заказа на сервер ---
+        document.getElementById('send-order').onclick = sendOrder;
+
+        function sendOrder() {
+            const cats = ['soup','main','drink'];
+            const orderData = {};
+            cats.forEach(c => { orderData[c] = selected[c]?selected[c].keyword:null; });
+            orderData.date = new Date().toISOString();
+            orderData.customer = "Test User";
+
+            fetch('https://httpbin.org/post', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(orderData)
+            })
+            .then(res => res.json())
+            .then(data => { alert('Заказ отправлен!'); })
+            .catch(err => { alert('Ошибка при отправке заказа'); });
         }
     </script>
 </body>
-
 </html>
