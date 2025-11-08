@@ -51,6 +51,7 @@
             <h2>Данные для заказа</h2>
             <input type="text" id="customer-name" placeholder="Ваше имя">
             <input type="email" id="customer-email" placeholder="Ваш email">
+            <input type="text" id="customer-phone" placeholder="Ваш номер телефона">
             <button type="submit" id="send-order" style="margin-top:10px;padding:8px 12px;">Отправить заказ</button>
         </section>
     </main>
@@ -132,7 +133,8 @@
             }
             const orderData = {
                 name: document.getElementById('customer-name').value,
-                email: document.getElementById('customer-email').value
+                email: document.getElementById('customer-email').value,
+                phone: document.getElementById('customer-phone').value
             };
             cats.forEach(c => { orderData[c] = selected[c] ? selected[c].keyword : null; });
 
