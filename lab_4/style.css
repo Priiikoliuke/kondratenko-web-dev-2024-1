@@ -219,7 +219,7 @@ button {
     }
 }
 
-@media(max-width:400px) {
+@media(max-width:600px) {
     nav {
         flex-direction: column;
         align-items: center
@@ -228,4 +228,11 @@ button {
     .hero h1 {
         font-size: 30px
     }
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 16px;
 }

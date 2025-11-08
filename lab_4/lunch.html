@@ -47,7 +47,11 @@
                     <div class="order-item"><span>Итого:</span><span class="price" id="total-price">0 ₽</span></div>
                 </div>
             </div>
-            <button id="send-order" style="margin-top:10px;padding:8px 12px;">Отправить заказ</button>
+            <br>
+            <h2>Данные для заказа</h2>
+            <input type="text" id="customer-name" placeholder="Ваше имя">
+            <input type="email" id="customer-email" placeholder="Ваш email">
+            <button type="submit" id="send-order" style="margin-top:10px;padding:8px 12px;">Отправить заказ</button>
         </section>
     </main>
 
@@ -126,17 +130,15 @@
                 alert('Выберите хотя бы одно блюдо, прежде чем отправлять заказ.');
                 return;
             }
-            const orderData = {};
+            const orderData = {
+                name: document.getElementById('customer-name').value,
+                email: document.getElementById('customer-email').value
+            };
             cats.forEach(c => { orderData[c] = selected[c] ? selected[c].keyword : null; });
 
-            fetch('https://httpbin.org/post', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData)
-            })
-                .then(res => res.json())
-                .then(data => { console.log('Ответ сервера:', data); alert('Заказ отправлен! Для просмотра ответа - откройте в консоль'); })
-                .catch(err => { console.error('Ошибка отправки:', err); alert('Ошибка при отправке заказа'); });
+            console.log(orderData);
+            alert('Заказ отправлен! Для просмотра ответа - откройте в консоль');
+
         }
     </script>
 </body>
