@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Собрать ланч</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="lunch.html" class="active">Собрать ланч</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Собрать ланч</h1>
+
+        <section id="lunch-combos">
+            <h2>Варианты для комбо</h2>
+            <div class="combos-grid" id="combos-container">
+                <!-- Комбо тута появятся из JS -->
+            </div>
+        </section>
+
+        <section id="dishes-container">
+            <!-- Блюда тута появятся из js -->
+        </section>
+
+        <section id="order-section">
+            <h2>Ваш заказ</h2>
+            <div id="order-empty">
+                <p>Ничего не выбрано</p>
+            </div>
+            <div id="order-items" style="display: none;">
+                <div class="order-category" id="soup-order">
+                    <h3>Супы</h3>
+                    <div class="order-item">
+                        <span>Блюдо не выбрано</span>
+                    </div>
+                </div>
+                <div class="order-category" id="main-order">
+                    <h3>Главные блюда</h3>
+                    <div class="order-item">
+                        <span>Блюдо не выбрано</span>
+                    </div>
+                </div>
+                <div class="order-category" id="salad-order">
+                    <h3>Салаты и стартеры</h3>
+                    <div class="order-item">
+                        <span>Блюдо не выбрано</span>
+                    </div>
+                </div>
+                <div class="order-category" id="drink-order">
+                    <h3>Напитки</h3>
+                    <div class="order-item">
+                        <span>Напиток не выбран</span>
+                    </div>
+                </div>
+                <div class="order-category" id="dessert-order">
+                    <h3>Десерты</h3>
+                    <div class="order-item">
+                        <span>Блюдо не выбрано</span>
+                    </div>
+                </div>
+                <div id="total" style="display: none;">
+                    <h3>Стоимость заказа</h3>
+                    <div class="order-item">
+                        <span>Итого:</span>
+                        <span class="price" id="total-price">0 ₽</span>
+                    </div>
+                </div>
+                <br>
+                <h2>Данные для заказа</h2>
+                <input type="text" id="customer-name" placeholder="Ваше имя">
+                <input type="email" id="customer-email" placeholder="Ваш email">
+                <input type="text" id="customer-phone" placeholder="Ваш номер телефона">
+                <button type="submit" id="send-order" style="margin-top:10px;padding:8px 12px;">Отправить заказ</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>+7 (777) 777-77-77 | orders@dailylunch.ru</p>
+        <p>&copy; 2025 Daily Lunch</p>
+    </footer>
+    <script src="index.js"></script>
+</body>
+
+</html>
