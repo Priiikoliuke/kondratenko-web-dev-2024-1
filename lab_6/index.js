@@ -80,7 +80,7 @@ function renderCombos() {
         comboEl.innerHTML = `
                     <div class="combo-title">${combo.title}</div>
                     <div class="combo-description">${combo.description}</div>
-                    <div class="combo-note">Десерт можно добавить к любому комбо</div>
+                    <div class="combo-note">Можно добавить десерт</div>
                 `;
         container.appendChild(comboEl);
     });
