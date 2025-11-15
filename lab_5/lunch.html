@@ -67,7 +67,13 @@
                         <span class="price" id="total-price">0 ₽</span>
                     </div>
                 </div>
-            </div>
+                <br>
+                <h2>Данные для заказа</h2>
+                <input type="text" id="customer-name" placeholder="Ваше имя">
+                <input type="email" id="customer-email" placeholder="Ваш email">
+                <input type="text" id="customer-phone" placeholder="Ваш номер телефона">
+                <button type="submit" id="send-order" style="margin-top:10px;padding:8px 12px;">Отправить заказ</button>
+                </div>
         </section>
     </main>
 
@@ -187,7 +193,6 @@
             
             container.appendChild(section);
             
-            // Рендерим блюда категории
             renderCategory(category);
         }
 
@@ -198,12 +203,11 @@
 
             let categoryDishes = dishes.filter(d => d.category === category);
             
-            // Применяем фильтр если есть активный
             if (activeFilters[category]) {
                 categoryDishes = categoryDishes.filter(d => d.kind === activeFilters[category]);
             }
 
-            // Сортируем и рендерим блюда
+            // Сортировка и рендер блюд
             categoryDishes.forEach(dish => {
                 const dishElement = document.createElement('div');
                 dishElement.className = 'dish';
@@ -223,7 +227,7 @@
         function toggleFilter(category, kind, button) {
             const isActive = button.classList.contains('active');
             
-            // Снимаем активность со всех кнопок этой категории
+            // Снятие активности со всех кнопок этой категории
             const categorySection = button.closest('section');
             categorySection.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -268,6 +272,28 @@
             document.getElementById('order-items').style.display = hasSelection ? 'block' : 'none';
             document.getElementById('total').style.display = hasSelection ? 'block' : 'none';
             document.getElementById('total-price').textContent = `${total} ₽`;
+        }
+
+        document.getElementById('send-order').onclick = sendOrder;
+
+        function sendOrder() {
+            const cats = ['soup', 'main', 'salad', 'drink', 'dessert'];
+
+            const hasSelected = cats.some(c => selected[c]);
+            if (!hasSelected) {
+                alert('Выберите хотя бы одно блюдо, прежде чем отправлять заказ.');
+                return;
+            }
+            const orderData = {
+                name: document.getElementById('customer-name').value,
+                email: document.getElementById('customer-email').value,
+                phone: document.getElementById('customer-phone').value
+            };
+            cats.forEach(c => { orderData[c] = selected[c] ? selected[c].keyword : null; });
+
+            console.log(orderData);
+            alert('Заказ отправлен! Для просмотра ответа - откройте в консоль');
+
         }
     </script>
 </body>
