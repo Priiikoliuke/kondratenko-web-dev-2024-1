@@ -1,0 +1,338 @@
+const dishes = [
+    { keyword: 'chicken_soup', name: 'Куриный суп', price: 250, category: 'soup', count: '350 мл', image: 'https://img.freepik.com/free-photo/top-view-chicken-soup-bowl-served-with-feijoa-kompot-bread_140725-8866.jpg?w=740&q=80', kind: 'meat' },
+    { keyword: 'borscht', name: 'Борщ', price: 280, category: 'soup', count: '350 мл', image: 'https://img.freepik.com/free-photo/traditional-ukrainian-borscht-with-slices-brown-bread-soft-drink_140725-9202.jpg?w=740&q=80', kind: 'meat' },
+    { keyword: 'tom_yam', name: 'Том Ям', price: 300, category: 'soup', count: '350 мл', image: 'https://img.freepik.com/free-photo/delicious-shrimp-meal-top-view_23-2148771283.jpg?w=740&q=80', kind: 'fish' },
+    { keyword: 'fish_soup', name: 'Уха', price: 320, category: 'soup', count: '350 мл', image: 'https://img.freepik.com/free-photo/minestrone-soup-table_140725-7401.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'fish' },
+    { keyword: 'mushroom_soup', name: 'Грибной суп', price: 240, category: 'soup', count: '350 мл', image: 'https://img.freepik.com/premium-photo/high-angle-view-mushrooms-bowl_1048944-16837689.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'veg' },
+    { keyword: 'vegetable_soup', name: 'Овощной суп', price: 220, category: 'soup', count: '350 мл', image: 'https://img.freepik.com/free-photo/vegetable-soup-with-side-herbs_141793-852.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'veg' },
+
+    { keyword: 'carbonara', name: 'Паста Карбонара', price: 350, category: 'main', count: '300 г', image: 'https://img.freepik.com/free-photo/pasta-filled-with-cream-topped-with-pepper_140725-1828.jpg?w=740&q=80', kind: 'meat' },
+    { keyword: 'steak', name: 'Стейк', price: 450, category: 'main', count: '250 г', image: 'https://img.freepik.com/free-photo/juicy-steak-medium-rare-beef-with-spices-grilled-vegetables_2829-18665.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'meat' },
+    { keyword: 'grilled_salmon', name: 'Лосось на гриле', price: 420, category: 'main', count: '280 г', image: 'https://img.freepik.com/free-photo/fried-salmon-with-vegetables-table_140725-4707.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'fish' },
+    { keyword: 'fish_steak', name: 'Рыбный стейк', price: 380, category: 'main', count: '300 г', image: 'https://img.freepik.com/free-photo/exotic-cut-slice-seafood-salmon-tomatoes_23-2148637838.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'fish' },
+    { keyword: 'vegetable_stew', name: 'Овощное рагу', price: 290, category: 'main', count: '300 г', image: 'https://img.freepik.com/free-photo/vegetable-ratatouille-frying-pan-wooden-table_2829-19906.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'veg' },
+    { keyword: 'vegan_bowl', name: 'Веганская тарелка', price: 270, category: 'main', count: '350 г', image: 'https://img.freepik.com/free-photo/close-up-view-delicious-salad-with-various-ingredients-plate-cutlery-set-white-surface-with-free-space_179666-42381.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'veg' },
+
+    { keyword: 'caesar_salad', name: 'Цезарь с курицей', price: 310, category: 'salad', count: '280 г', image: 'https://img.freepik.com/free-photo/top-view-caesar-salad-oval-plate-green-white-checkered-tablecloth-dark-red-background_140725-124915.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'meat' },
+    { keyword: 'shrimp_salad', name: 'Салат с креветками', price: 360, category: 'salad', count: '250 г', image: 'https://img.freepik.com/free-photo/side-view-caesar-salad-with-fried-shrimp-lettuce_176474-2999.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'fish' },
+    { keyword: 'greek_salad', name: 'Греческий салат', price: 270, category: 'salad', count: '300 г', image: 'https://img.freepik.com/free-photo/greek-salad-with-cucumber-tomato-sweet-pepper-lettuce-green-onion-feta-cheese-olives-with-olive-oil-healthy-food_2829-19692.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'veg' },
+    { keyword: 'caprese', name: 'Капрезе', price: 290, category: 'salad', count: '220 г', image: 'https://img.freepik.com/free-photo/italian-caprese-salad-with-tomatoes-basil-mozzarella-olives-olive-oil-wooden-board-italian-traditional-caprese-salad-ingredients-mediterranean-organic-natural-food-concept_1150-44847.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'veg' },
+    { keyword: 'quinoa_salad', name: 'Салат с киноа', price: 250, category: 'salad', count: '280 г', image: 'https://img.freepik.com/free-photo/salads-with-quinoa-arugula-radish-tomatoes-cucumber-bowl-wooden-table-healthy-food-diet-detox-vegetarian-concept_2829-6842.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'veg' },
+    { keyword: 'coleslaw', name: 'Коул-слоу', price: 190, category: 'salad', count: '200 г', image: 'https://img.freepik.com/free-photo/front-view-tasty-vegetable-salad-with-sliced-cabbage-bell-peppers-grey-table_140725-137166.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'veg' },
+
+    { keyword: 'orange_juice', name: 'Апельсиновый фреш', price: 150, category: 'drink', count: '300 мл', image: 'https://img.freepik.com/free-photo/glass-orange-juice-placed-wood_1150-9661.jpg?w=740&q=80', kind: 'cold' },
+    { keyword: 'lemonade', name: 'Лимонад', price: 140, category: 'drink', count: '400 мл', image: 'https://img.freepik.com/free-photo/high-angle-ice-tea-glass_23-2148555390.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'cold' },
+    { keyword: 'soda', name: 'Газировка', price: 120, category: 'drink', count: '330 мл', image: 'https://img.freepik.com/premium-photo/pouring-cola-into-glass-wooden-table-with-french-fries-background_43379-1052.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'cold' },
+    { keyword: 'coffee', name: 'Кофе на выбор', price: 180, category: 'drink', count: '300 мл', image: 'https://img.freepik.com/free-photo/top-view-hot-espresso-with-brown-coffee-seeds-brown-wooden-desk-coffee-cup-drink_140725-28168.jpg?w=740&q=80', kind: 'hot' },
+    { keyword: 'green_tea', name: 'Зеленый чай', price: 120, category: 'drink', count: '400 мл', image: 'https://img.freepik.com/free-photo/herbal-tea-with-leaves-glass-cup-white-grungy_176474-7374.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'hot' },
+    { keyword: 'hot_chocolate', name: 'Горячий шоколад', price: 190, category: 'drink', count: '300 мл', image: 'https://img.freepik.com/free-photo/marshmallows-dipped-hot-chocolate-christmas-food-photography_53876-95448.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'hot' },
+
+    { keyword: 'cheesecake', name: 'Чизкейк', price: 240, category: 'dessert', count: '120 г', image: 'https://img.freepik.com/free-photo/slice-cheesecake-with-cherry-topping-sprig-mint-white-plate_9975-124527.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'small' },
+    { keyword: 'chocolate_cake', name: 'Шоколадный торт', price: 220, category: 'dessert', count: '100 г', image: 'https://img.freepik.com/free-photo/closeup-two-pieces-tasty-chocolate-cake-wooden-board_181624-46926.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'small' },
+    { keyword: 'ice_cream', name: 'Мороженое', price: 180, category: 'dessert', count: '150 г', image: 'https://img.freepik.com/premium-photo/colorful-bright-ice-cream-bowls-with-waffle-cones_136595-28289.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'small' },
+    { keyword: 'tiramisu', name: 'Тирамису', price: 280, category: 'dessert', count: '150 г', image: 'https://img.freepik.com/premium-photo/traditional-tiramisu-cake-wooden-table_123827-15780.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'medium' },
+    { keyword: 'apple_pie', name: 'Яблочный пирог', price: 210, category: 'dessert', count: '180 г', image: 'https://img.freepik.com/free-photo/flat-lay-pie-apples_23-2148243491.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'medium' },
+    { keyword: 'chocolate_mousse', name: 'Шоколадный мусс', price: 260, category: 'dessert', count: '200 г', image: 'https://img.freepik.com/free-photo/view-delicious-dessert_23-2150777737.jpg?ga=GA1.1.1404082264.1760036033&semt=ais_hybrid&w=740&q=80', kind: 'large' }
+];
+
+const selected = {};
+const activeFilters = {};
+
+const comboOptions = [
+    {
+        title: 'Комбо 1',
+        description: 'Суп + Главное блюдо + Салат + Напиток',
+        required: ['soup', 'main', 'salad', 'drink']
+    },
+    {
+        title: 'Комбо 2',
+        description: 'Суп + Главное блюдо + Напиток',
+        required: ['soup', 'main', 'drink']
+    },
+    {
+        title: 'Комбо 3',
+        description: 'Главное блюдо + Салат + Напиток',
+        required: ['main', 'salad', 'drink']
+    },
+    {
+        title: 'Комбо 4',
+        description: 'Главное блюдо + Напиток',
+        required: ['main', 'drink']
+    },
+    {
+        title: 'Комбо 5',
+        description: 'Суп + Салат + Напиток',
+        required: ['soup', 'salad', 'drink']
+    }
+];
+
+window.onload = () => {
+    renderCombos();
+    renderAllCategories();
+};
+
+function renderCombos() {
+    const container = document.getElementById('combos-container');
+
+    comboOptions.forEach(combo => {
+        const comboEl = document.createElement('div');
+        comboEl.className = 'combo-option';
+        comboEl.innerHTML = `
+                    <div class="combo-title">${combo.title}</div>
+                    <div class="combo-description">${combo.description}</div>
+                    <div class="combo-note">Десерт можно добавить к любому комбо</div>
+                `;
+        container.appendChild(comboEl);
+    });
+}
+
+function renderAllCategories() {
+    const container = document.getElementById('dishes-container');
+    container.innerHTML = '';
+
+    createCategorySection('soup', 'Супы', [
+        { text: 'рыбный', kind: 'fish' },
+        { text: 'мясной', kind: 'meat' },
+        { text: 'вегетарианский', kind: 'veg' }
+    ]);
+
+    createCategorySection('main', 'Главные блюда', [
+        { text: 'рыбное', kind: 'fish' },
+        { text: 'мясное', kind: 'meat' },
+        { text: 'вегетарианское', kind: 'veg' }
+    ]);
+
+    createCategorySection('salad', 'Салаты и стартеры', [
+        { text: 'рыбный', kind: 'fish' },
+        { text: 'мясной', kind: 'meat' },
+        { text: 'вегетарианский', kind: 'veg' }
+    ]);
+
+    createCategorySection('drink', 'Напитки', [
+        { text: 'холодный', kind: 'cold' },
+        { text: 'горячий', kind: 'hot' }
+    ]);
+
+    createCategorySection('dessert', 'Десерты', [
+        { text: 'маленькая порция', kind: 'small' },
+        { text: 'средняя порция', kind: 'medium' },
+        { text: 'большая порция', kind: 'large' }
+    ]);
+}
+
+function createCategorySection(category, title, filters) {
+    const container = document.getElementById('dishes-container');
+
+    const section = document.createElement('section');
+    section.innerHTML = `<h2>${title}</h2>`;
+
+    const filtersDiv = document.createElement('div');
+    filtersDiv.className = 'filters';
+
+    filters.forEach(filter => {
+        const button = document.createElement('button');
+        button.className = 'filter-btn';
+        button.textContent = filter.text;
+        button.dataset.kind = filter.kind;
+        button.onclick = () => toggleFilter(category, filter.kind, button);
+        filtersDiv.appendChild(button);
+    });
+
+    section.appendChild(filtersDiv);
+
+    const menuDiv = document.createElement('div');
+    menuDiv.className = 'menu';
+    menuDiv.id = `${category}-menu`;
+    section.appendChild(menuDiv);
+
+    container.appendChild(section);
+
+    renderCategory(category);
+}
+
+function renderCategory(category) {
+    const menuElement = document.getElementById(`${category}-menu`);
+    menuElement.innerHTML = '';
+
+    let categoryDishes = dishes.filter(d => d.category === category);
+
+    if (activeFilters[category]) {
+        categoryDishes = categoryDishes.filter(d => d.kind === activeFilters[category]);
+    }
+
+    categoryDishes.forEach(dish => {
+        const dishElement = document.createElement('div');
+        dishElement.className = 'dish';
+        dishElement.innerHTML = `
+                    <img src="${dish.image}" alt="${dish.name}">
+                    <p>${dish.name}</p>
+                    <p>${dish.count}</p>
+                    <p class="price">${dish.price} ₽</p>
+                    <button>Добавить</button>
+                `;
+        dishElement.querySelector('button').onclick = () => selectDish(dish);
+        menuElement.appendChild(dishElement);
+    });
+}
+
+function toggleFilter(category, kind, button) {
+    const isActive = button.classList.contains('active');
+
+    const categorySection = button.closest('section');
+    categorySection.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    if (!isActive) {
+        button.classList.add('active');
+        activeFilters[category] = kind;
+    } else {
+        activeFilters[category] = null;
+    }
+
+    renderCategory(category);
+}
+
+function selectDish(dish) {
+    selected[dish.category] = dish;
+    updateOrder();
+}
+
+function updateOrder() {
+    const categories = ['soup', 'main', 'salad', 'drink', 'dessert'];
+    let total = 0;
+    let hasSelection = false;
+
+    categories.forEach(category => {
+        const orderElement = document.getElementById(`${category}-order`).querySelector('.order-item');
+        if (selected[category]) {
+            orderElement.innerHTML = `<span>${selected[category].name}</span><span>${selected[category].price} ₽</span>`;
+            total += selected[category].price;
+            hasSelection = true;
+        } else {
+            const notSelectedText = category === 'drink' ? 'Напиток не выбран' : 'Блюдо не выбрано';
+            orderElement.innerHTML = `<span>${notSelectedText}</span>`;
+        }
+    });
+
+    document.getElementById('order-empty').style.display = hasSelection ? 'none' : 'block';
+    document.getElementById('order-items').style.display = hasSelection ? 'block' : 'none';
+    document.getElementById('total').style.display = hasSelection ? 'block' : 'none';
+    document.getElementById('total-price').textContent = `${total} ₽`;
+}
+
+function checkCombo() {
+    const hasSoup = selected.soup;
+    const hasMain = selected.main;
+    const hasSalad = selected.salad;
+    const hasDrink = selected.drink;
+
+    // Проверяем все возможные комбинации
+    if (hasSoup && hasMain && hasSalad && hasDrink) {
+        return { valid: true, combo: 'full' };
+    }
+    if (hasSoup && hasMain && hasDrink) {
+        return { valid: true, combo: 'soup_main_drink' };
+    }
+    if (hasMain && hasSalad && hasDrink) {
+        return { valid: true, combo: 'main_salad_drink' };
+    }
+    if (hasMain && hasDrink) {
+        return { valid: true, combo: 'main_drink' };
+    }
+    if (hasSoup && hasSalad && hasDrink) {
+        return { valid: true, combo: 'soup_salad_drink' };
+    }
+
+    // Если комбо не собрано, определяем недостающие элементы
+    const missing = [];
+    if (!hasSoup && !hasMain && !hasSalad && !hasDrink) {
+        missing.push('любое основное блюдо и напиток');
+    } else {
+        // Определяем ближайшее комбо и чего не хватает
+        if (!hasSoup && hasMain && hasSalad && hasDrink) {
+            missing.push('суп');
+        } else if (hasSoup && !hasMain && hasSalad && hasDrink) {
+            missing.push('главное блюдо');
+        } else if (hasSoup && hasMain && !hasSalad && hasDrink) {
+            missing.push('салат');
+        } else if (hasSoup && hasMain && hasSalad && !hasDrink) {
+            missing.push('напиток');
+        } else {
+            // Общий случай
+            if (!hasMain) missing.push('главное блюдо');
+            if (!hasDrink) missing.push('напиток');
+            if (hasMain && hasDrink && !hasSoup && !hasSalad) {
+                // Уже валидно (комбо "Главное блюдо + Напиток")
+            } else {
+                if (!hasSoup && hasMain && hasDrink) missing.push('суп или салат');
+                if (!hasSalad && hasMain && hasDrink) missing.push('салат или суп');
+            }
+        }
+    }
+
+    return { valid: false, missing };
+}
+
+function showNotification(missing) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+
+    let message = '';
+    if (missing.includes('любое основное блюдо и напиток')) {
+        message = 'Выберите любое основное блюдо и напиток для составления комбо';
+    } else {
+        message = `Для завершения заказа необходимо добавить: ${missing.join(', ')}`;
+    }
+
+    notification.innerHTML = `
+                <div class="notification-content">
+                    <h3>Неполный заказ</h3>
+                    <p>${message}</p>
+                    <button class="notification-btn">Окей</button>
+                </div>
+            `;
+
+    document.body.appendChild(notification);
+
+    notification.querySelector('.notification-btn').onclick = () => {
+        document.body.removeChild(notification);
+    };
+}
+
+function sendOrder() {
+    const check = checkCombo();
+    if (!check.valid) {
+        showNotification(check.missing);
+        return;
+    }
+
+    // О блюдах
+
+    const orderArray = [];
+    
+    ['soup', 'main', 'salad', 'drink', 'dessert'].forEach(c => {
+        if (selected[c]) {
+            orderArray.push({
+                category: c,
+                keyword: selected[c].keyword,
+                name: selected[c].name,
+                price: selected[c].price
+            });
+        }
+    });
+
+    // О клиенте
+    const customerInfo = {
+        name: document.getElementById('customer-name').value,
+        email: document.getElementById('customer-email').value,
+        phone: document.getElementById('customer-phone').value,
+        totalPrice: parseInt(document.getElementById('total-price').textContent)
+    };
+
+    console.log('Информация о клиенте:', customerInfo);
+    console.log('Выбранные блюда:', orderArray);
+    alert('Заказ успешно отправлен! Проверьте консоль для деталей.');
+}
+
+document.getElementById('send-order').onclick = sendOrder;
