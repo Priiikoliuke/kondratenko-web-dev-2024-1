@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Собрать ланч</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="lunch.html" class="active">Собрать ланч</a>
+            <a href="orders.html">Заказы</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Собрать ланч</h1>
+
+        <section id="lunch-combos">
+            <h2>Варианты для комбо</h2>
+            <div class="combos-grid" id="combos-container">
+                <!-- Комбо тута появятся из JS -->
+            </div>
+        </section>
+
+        <section id="dishes-container">
+            <!-- Блюда тута появятся из js -->
+        </section>
+
+        <!-- Панель для перехода к оформлению заказа -->
+        <div id="order-panel" class="order-panel" style="display: none;">
+            <div class="order-panel-content">
+                <div class="order-summary">
+                    <span>Стоимость: </span>
+                    <span class="price" id="panel-total-price">0 ₽</span>
+                </div>
+                <button id="show-checkout-btn" class="btn checkout-btn">Перейти к оформлению</button>
+            </div>
+        </div>
+
+        <!-- Секция оформления заказа (изначально скрыта) -->
+        <section id="checkout-section" class="checkout-container" style="display: none;">
+            <div class="checkout-content">
+                <h2>Оформить заказ</h2>
+                
+                <div class="checkout-layout">
+                    <div class="checkout-left">
+                        <h3>Состав заказа</h3>
+                        <div id="checkout-order-items" class="checkout-order-items">
+                            <!-- Выбранные блюда появятся здесь -->
+                        </div>
+                        <div id="checkout-empty-message" style="display: none;">
+                            <p>Ничего не выбрано. Чтобы добавить блюда в заказ, перейдите на страницу Собрать ланч.</p>
+                        </div>
+                    </div>
+
+                    <div class="checkout-right">
+                        <h3>Оформление заказа</h3>
+                        <form id="order-form">
+                            <div class="form-order-summary">
+                                <h4>Ваш заказ:</h4>
+                                <div id="form-order-items">
+                                    <!-- Сводка заказа в форме -->
+                                </div>
+                                <div class="form-order-total">
+                                    <span>Итого:</span>
+                                    <span class="price" id="form-total-price">0 ₽</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="full_name">ФИО *</label>
+                                <input type="text" id="full_name" name="full_name" value="Фамилия Имя Отчество" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" value="some_name@somedomain.com" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone">Телефон *</label>
+                                <input type="tel" id="phone" name="phone" value="88888888888" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="delivery_address">Адрес доставки *</label>
+                                <input type="text" id="delivery_address" name="delivery_address" value="Адрес" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="delivery_type">Тип доставки *</label>
+                                <select id="delivery_type" name="delivery_type" required>
+                                    <option value="now">Сейчас</option>
+                                    <option value="by_time">Ко времени</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" id="delivery_time_group" style="display: none;">
+                                <label for="delivery_time">Время доставки *</label>
+                                <input type="time" id="delivery_time" name="delivery_time" min="07:00" max="23:00" step="300">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="comment">Комментарий</label>
+                                <textarea id="comment" name="comment" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="subscribe" name="subscribe" value="1">
+                                    Подписаться на рассылку
+                                </label>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" id="back-to-lunch" class="btn btn-secondary">Вернуться к выбору</button>
+                                <button type="submit" id="submit-order" class="btn">Отправить заказ</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>+7 (777) 777-77-77 | orders@dailylunch.ru</p>
+        <p>&copy; 2025 Daily Lunch</p>
+    </footer>
+    <script src="index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История заказов - Daily Lunch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+     <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Шапка с меню -->
+    <header>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="lunch.html">Собрать ланч</a>
+            <a href="orders.html" class="active">Заказы</a>
+        </nav>
+    </header>
+
+    <!-- Основная часть -->
+    <main>
+        <h1>История заказов</h1>
+        
+        <!-- Таблица с заказами -->
+        <div class="orders-container">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Дата</th>
+                        <th>Блюда</th>
+                        <th>Стоимость</th>
+                        <th>Доставка</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-body">
+                    <!-- Здесь появятся заказы -->
+                </tbody>
+            </table>
+            
+            <!-- Если заказов нет -->
+            <div id="no-orders" style="display: none; text-align: center; padding: 40px;">
+                <p>Заказов пока нет</p>
+                <a href="lunch.html" class="btn" style="margin-top: 20px;">Сделать заказ</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Окно просмотра заказа -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('viewModal')">&times;</span>
+            <h2>Детали заказа</h2>
+            <div id="view-content"></div>
+            <div class="modal-actions">
+                <button onclick="closeModal('viewModal')" class="btn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Окно редактирования -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('editModal')">&times;</span>
+            <h2>Редактировать заказ</h2>
+            <form id="edit-form">
+                <div id="edit-content"></div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeModal('editModal')" class="btn btn-secondary">Отмена</button>
+                    <button type="submit" class="btn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Окно удаления -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('deleteModal')">&times;</span>
+            <h3>Удалить заказ?</h3>
+            <p>Вы уверены?</p>
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal('deleteModal')" class="btn btn-secondary">Нет</button>
+                <button type="button" onclick="confirmDelete()" class="btn" style="background: #dc3545;">Да</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer>
+        <p>+7 (777) 777-77-77 | orders@dailylunch.ru</p>
+        <p>&copy; 2025 Daily Lunch</p>
+    </footer>
+
+    <script>
+        // Настройки
+        const API_URL = 'https://edu.std-900.ist.mospolytech.ru/labs/api';
+        let orders = [];
+        let dishes = {};
+        let currentOrderId = null;
+
+        // Запускаем при загрузке страницы
+        window.onload = async function() {
+            await loadDishes();
+            await loadOrders();
+        };
+
+        // Загружаем блюда
+        async function loadDishes() {
+            try {
+                const response = await fetch(`${API_URL}/dishes`);
+                const data = await response.json();
+                data.forEach(dish => {
+                    dishes[dish.id] = dish;
+                });
+            } catch (error) {
+                showMessage('Не удалось загрузить блюда');
+            }
+        }
+
+        // Загружаем заказы
+        async function loadOrders() {
+            const apiKey = localStorage.getItem('api_key');
+            if (!apiKey) {
+                showMessage('Войдите в систему');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/orders?api_key=${apiKey}`);
+                orders = await response.json();
+                
+                // Сортируем от новых к старым
+                orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                showOrders();
+            } catch (error) {
+                showMessage('Не удалось загрузить заказы');
+            }
+        }
+
+        // Показываем заказы в таблице
+        function showOrders() {
+            const body = document.getElementById('orders-body');
+            const noOrders = document.getElementById('no-orders');
+            
+            if (orders.length === 0) {
+                body.innerHTML = '';
+                noOrders.style.display = 'block';
+                return;
+            }
+            
+            noOrders.style.display = 'none';
+            body.innerHTML = '';
+            
+            orders.forEach((order, index) => {
+                const row = document.createElement('tr');
+                
+                // Названия блюд
+                const dishNames = [];
+                ['soup_id', 'main_course_id', 'salad_id', 'drink_id', 'dessert_id'].forEach(field => {
+                    if (order[field] && dishes[order[field]]) {
+                        dishNames.push(dishes[order[field]].name);
+                    }
+                });
+                
+                // Стоимость
+                let total = 0;
+                ['soup_id', 'main_course_id', 'salad_id', 'drink_id', 'dessert_id'].forEach(field => {
+                    if (order[field] && dishes[order[field]]) {
+                        total += dishes[order[field]].price;
+                    }
+                });
+                
+                // Время доставки
+                let deliveryTime = 'Как можно скорее';
+                if (order.delivery_type === 'by_time' && order.delivery_time) {
+                    deliveryTime = order.delivery_time;
+                }
+                
+                // Дата
+                const date = new Date(order.created_at);
+                const dateStr = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth()+1).toString().padStart(2, '0')}.${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${dateStr}</td>
+                    <td>${dishNames.join(', ')}</td>
+                    <td>${total} ₽</td>
+                    <td>${deliveryTime}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="action-btn view-btn" onclick="viewOrder(${order.id})">Смотреть</button>
+                            <button class="action-btn edit-btn" onclick="editOrder(${order.id})">Изменить</button>
+                            <button class="action-btn delete-btn" onclick="deleteOrder(${order.id})">Удалить</button>
+                        </div>
+                    </td>
+                `;
+                
+                body.appendChild(row);
+            });
+        }
+
+        // Просмотр заказа
+        function viewOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            // Названия блюд
+            const dishNames = [];
+            let total = 0;
+            ['soup_id', 'main_course_id', 'salad_id', 'drink_id', 'dessert_id'].forEach(field => {
+                if (order[field] && dishes[order[field]]) {
+                    dishNames.push(dishes[order[field]].name);
+                    total += dishes[order[field]].price;
+                }
+            });
+            
+            // Дата
+            const date = new Date(order.created_at);
+            const dateStr = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth()+1).toString().padStart(2, '0')}.${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+            
+            // Время доставки
+            let deliveryTime = 'Как можно скорее';
+            if (order.delivery_type === 'by_time' && order.delivery_time) {
+                deliveryTime = order.delivery_time;
+            }
+            
+            document.getElementById('view-content').innerHTML = `
+                <p><strong>Дата:</strong> ${dateStr}</p>
+                <p><strong>Имя:</strong> ${order.full_name}</p>
+                <p><strong>Адрес:</strong> ${order.delivery_address}</p>
+                <p><strong>Телефон:</strong> ${order.phone}</p>
+                <p><strong>Email:</strong> ${order.email}</p>
+                <p><strong>Доставка:</strong> ${deliveryTime}</p>
+                ${order.comment ? `<p><strong>Комментарий:</strong> ${order.comment}</p>` : ''}
+                <p><strong>Блюда:</strong> ${dishNames.join(', ')}</p>
+                <p><strong>Итого:</strong> ${total} ₽</p>
+            `;
+            
+            openModal('viewModal');
+        }
+
+        // Редактирование заказа
+        function editOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            currentOrderId = orderId;
+            
+            document.getElementById('edit-content').innerHTML = `
+                <div class="form-group">
+                    <label>ФИО *</label>
+                    <input type="text" id="edit-name" value="${order.full_name}" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="edit-email" value="${order.email}" required>
+                </div>
+                <div class="form-group">
+                    <label>Телефон *</label>
+                    <input type="tel" id="edit-phone" value="${order.phone}" required>
+                </div>
+                <div class="form-group">
+                    <label>Адрес *</label>
+                    <input type="text" id="edit-address" value="${order.delivery_address}" required>
+                </div>
+                <div class="form-group">
+                    <label>Тип доставки *</label>
+                    <select id="edit-type" required>
+                        <option value="now" ${order.delivery_type === 'now' ? 'selected' : ''}>Сейчас</option>
+                        <option value="by_time" ${order.delivery_type === 'by_time' ? 'selected' : ''}>Ко времени</option>
+                    </select>
+                </div>
+                <div class="form-group" id="time-group" style="${order.delivery_type === 'by_time' ? '' : 'display: none;'}">
+                    <label>Время доставки *</label>
+                    <input type="time" id="edit-time" value="${order.delivery_time || ''}" min="07:00" max="23:00">
+                </div>
+                <div class="form-group">
+                    <label>Комментарий</label>
+                    <textarea id="edit-comment" rows="3">${order.comment || ''}</textarea>
+                </div>
+            `;
+            
+            // Показываем/скрываем поле времени
+            document.getElementById('edit-type').addEventListener('change', function() {
+                document.getElementById('time-group').style.display = this.value === 'by_time' ? 'block' : 'none';
+            });
+            
+            openModal('editModal');
+        }
+
+        // Удаление заказа
+        function deleteOrder(orderId) {
+            currentOrderId = orderId;
+            openModal('deleteModal');
+        }
+
+        // Форма редактирования
+        document.getElementById('edit-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const apiKey = localStorage.getItem('api_key');
+            if (!apiKey) return;
+            
+            const data = {
+                full_name: document.getElementById('edit-name').value,
+                email: document.getElementById('edit-email').value,
+                phone: document.getElementById('edit-phone').value,
+                delivery_address: document.getElementById('edit-address').value,
+                delivery_type: document.getElementById('edit-type').value,
+                comment: document.getElementById('edit-comment').value
+            };
+            
+            // Если доставка ко времени
+            if (data.delivery_type === 'by_time') {
+                const time = document.getElementById('edit-time').value;
+                if (!time) {
+                    showMessage('Укажите время доставки');
+                    return;
+                }
+                data.delivery_time = time;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/orders/${currentOrderId}?api_key=${apiKey}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showMessage('Заказ обновлён');
+                    closeModal('editModal');
+                    await loadOrders();
+                } else {
+                    showMessage('Ошибка');
+                }
+            } catch (error) {
+                showMessage('Ошибка сети');
+            }
+        });
+
+        // Подтверждение удаления
+        async function confirmDelete() {
+            const apiKey = localStorage.getItem('api_key');
+            if (!apiKey) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/orders/${currentOrderId}?api_key=${apiKey}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showMessage('Заказ удалён');
+                    closeModal('deleteModal');
+                    await loadOrders();
+                } else {
+                    showMessage('Ошибка удаления');
+                }
+            } catch (error) {
+                showMessage('Ошибка сети');
+            }
+        }
+
+        // Управление модальными окнами
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            currentOrderId = null;
+        }
+        
+        // Закрытие при клике вне окна
+        window.onclick = function(e) {
+            if (e.target.className === 'modal') {
+                closeModal('viewModal');
+                closeModal('editModal');
+                closeModal('deleteModal');
+            }
+        }
+
+        // Показать сообщение
+        function showMessage(text) {
+            const msg = document.createElement('div');
+            msg.textContent = text;
+            msg.style.cssText = 'position: fixed; top: 20px; right: 20px; padding: 15px; background: tomato; color: white; border-radius: 5px;';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

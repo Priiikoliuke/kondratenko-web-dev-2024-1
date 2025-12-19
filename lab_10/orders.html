@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История заказов - Daily Lunch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="lunch.html">Собрать ланч</a>
+            <a href="orders.html" class="active">Заказы</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>История заказов</h1>
+        
+        <div class="orders-container">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Дата оформления</th>
+                        <th>Состав заказа</th>
+                        <th>Стоимость</th>
+                        <th>Время доставки</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                    <!-- Заказы будут загружены через JS -->
+                </tbody>
+            </table>
+            
+            <div id="no-orders" style="display: none; text-align: center; padding: 40px;">
+                <p>У вас пока нет заказов.</p>
+                <a href="lunch.html" class="btn" style="margin-top: 20px;">Собрать ланч</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно просмотра заказа -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('viewModal')">&times;</span>
+            <h2>Просмотр заказа</h2>
+            <div id="viewOrderContent" class="order-details">
+                <!-- Содержимое будет заполнено через JS -->
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeModal('viewModal')" class="btn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования заказа -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('editModal')">&times;</span>
+            <h2 style="position: sticky; top: 0; background: white; padding-bottom: 10px; margin-top: 0;">Редактирование заказа</h2>
+            <form id="editOrderForm" class="modal-form">
+                <div id="editOrderContent">
+                    <!-- Форма редактирования будет заполнена через JS -->
+                </div>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeModal('editModal')" class="btn btn-secondary">Отмена</button>
+                    <button type="submit" class="btn">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно удаления заказа -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('deleteModal')">&times;</span>
+            <div class="delete-confirm">
+                <h3>Удаление заказа</h3>
+                <p>Вы уверены, что хотите удалить заказ?</p>
+                <div class="modal-actions">
+                    <button type="button" onclick="closeModal('deleteModal')" class="btn btn-secondary">Отмена</button>
+                    <button type="button" onclick="confirmDelete()" class="btn" style="background: #dc3545;">Да</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>+7 (777) 777-77-77 | orders@dailylunch.ru</p>
+        <p>&copy; 2025 Daily Lunch</p>
+    </footer>
+
+    <script>
+        const API_BASE = 'https://edu.std-900.ist.mospolytech.ru';
+        let orders = [];
+        let dishes = [];
+        let currentOrderId = null;
+        let currentDishesMap = {}; // Карта блюд для быстрого доступа по ID
+
+        // Загрузка данных при загрузке страницы
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadDishes();
+            await loadOrders();
+        });
+
+        // Загрузка списка блюд
+        async function loadDishes() {
+            try {
+                const response = await fetch(`${API_BASE}/labs/api/dishes`);
+                if (!response.ok) throw new Error('Ошибка загрузки блюд');
+                dishes = await response.json();
+                
+                // Создаем карту блюд для быстрого доступа
+                dishes.forEach(dish => {
+                    currentDishesMap[dish.id] = dish;
+                });
+            } catch (error) {
+                console.error('Ошибка при загрузке блюд:', error);
+                showNotification('Ошибка при загрузке блюд', 'error');
+            }
+        }
+
+        // Загрузка заказов
+        async function loadOrders() {
+            try {
+                const apiKey = localStorage.getItem('api_key');
+                if (!apiKey) {
+                    showNotification('Для просмотра заказов необходимо авторизоваться', 'error');
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/labs/api/orders?api_key=${apiKey}`);
+                if (!response.ok) throw new Error('Ошибка загрузки заказов');
+                
+                orders = await response.json();
+                
+                // Сортируем по дате создания (новые сначала)
+                orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                
+                renderOrdersTable();
+            } catch (error) {
+                console.error('Ошибка при загрузке заказов:', error);
+                showNotification('Ошибка при загрузке заказов', 'error');
+            }
+        }
+
+        // Отображение таблицы заказов
+        function renderOrdersTable() {
+            const tableBody = document.getElementById('orders-table-body');
+            const noOrders = document.getElementById('no-orders');
+            
+            if (orders.length === 0) {
+                tableBody.innerHTML = '';
+                noOrders.style.display = 'block';
+                return;
+            }
+            
+            noOrders.style.display = 'none';
+            tableBody.innerHTML = '';
+            
+            orders.forEach((order, index) => {
+                const row = document.createElement('tr');
+                
+                // Получаем названия блюд
+                const dishNames = getDishNamesFromOrder(order);
+                const totalPrice = calculateOrderTotal(order);
+                const deliveryTimeText = getDeliveryTimeText(order);
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${formatDateTime(order.created_at)}</td>
+                    <td>${dishNames.join(', ')}</td>
+                    <td>${totalPrice} ₽</td>
+                    <td>${deliveryTimeText}</td>
+                    <td class="actions-cell">
+                        <button class="action-btn view" onclick="viewOrder(${order.id})" title="Подробнее">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="action-btn edit" onclick="editOrder(${order.id})" title="Редактировать">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="action-btn delete" onclick="deleteOrder(${order.id})" title="Удалить">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Получение названий блюд из заказа
+        function getDishNamesFromOrder(order) {
+            const dishNames = [];
+            
+            // Проверяем каждое поле блюда
+            ['soup_id', 'main_course_id', 'salad_id', 'drink_id', 'dessert_id'].forEach(field => {
+                if (order[field] && currentDishesMap[order[field]]) {
+                    dishNames.push(currentDishesMap[order[field]].name);
+                }
+            });
+            
+            return dishNames;
+        }
+
+        // Расчет общей стоимости заказа
+        function calculateOrderTotal(order) {
+            let total = 0;
+            
+            ['soup_id', 'main_course_id', 'salad_id', 'drink_id', 'dessert_id'].forEach(field => {
+                if (order[field] && currentDishesMap[order[field]]) {
+                    total += currentDishesMap[order[field]].price;
+                }
+            });
+            
+            return total;
+        }
+
+        // Получение текста времени доставки
+        function getDeliveryTimeText(order) {
+            if (order.delivery_type === 'by_time' && order.delivery_time) {
+                return order.delivery_time;
+            }
+            return 'Как можно скорее (с 7:00 до 23:00)';
+        }
+
+        // Форматирование даты и времени
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        // Форматирование даты для input[type="time"]
+        function formatTimeForInput(timeString) {
+            if (!timeString) return '';
+            return timeString.substring(0, 5); // Берем только часы и минуты
+        }
+
+        // Просмотр заказа
+        function viewOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            const modalContent = document.getElementById('viewOrderContent');
+            const dishNames = getDishNamesFromOrder(order);
+            const totalPrice = calculateOrderTotal(order);
+            
+            modalContent.innerHTML = `
+                <div class="order-detail-group">
+                    <h3>Дата оформления</h3>
+                    <p>${formatDateTime(order.created_at)}</p>
+                </div>
+                
+                <div class="order-detail-group">
+                    <h3>Доставка</h3>
+                    <p><strong>Имя получателя:</strong> ${order.full_name}</p>
+                    <p><strong>Адрес доставки:</strong> ${order.delivery_address}</p>
+                    <p><strong>Время доставки:</strong> ${getDeliveryTimeText(order)}</p>
+                    <p><strong>Телефон:</strong> ${order.phone}</p>
+                    <p><strong>Email:</strong> ${order.email}</p>
+                </div>
+                
+                ${order.comment ? `
+                <div class="order-detail-group">
+                    <h3>Комментарий</h3>
+                    <p>${order.comment}</p>
+                </div>
+                ` : ''}
+                
+                <div class="order-detail-group">
+                    <h3>Состав заказа</h3>
+                    <ul class="order-items-list">
+                        ${dishNames.map(name => {
+                            const dish = Object.values(currentDishesMap).find(d => d.name === name);
+                            return `<li>${name} (${dish ? dish.price : 0} ₽)</li>`;
+                        }).join('')}
+                    </ul>
+                </div>
+                
+                <div class="order-detail-group">
+                    <h3>Стоимость: ${totalPrice} ₽</h3>
+                </div>
+            `;
+            
+            openModal('viewModal');
+        }
+
+        // Редактирование заказа
+        function editOrder(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            currentOrderId = orderId;
+            const editContent = document.getElementById('editOrderContent');
+            
+            editContent.innerHTML = `
+                <div class="form-group">
+                    <label for="edit_full_name">ФИО *</label>
+                    <input type="text" id="edit_full_name" name="full_name" value="${order.full_name}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_email">Email *</label>
+                    <input type="email" id="edit_email" name="email" value="${order.email}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_phone">Телефон *</label>
+                    <input type="tel" id="edit_phone" name="phone" value="${order.phone}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_delivery_address">Адрес доставки *</label>
+                    <input type="text" id="edit_delivery_address" name="delivery_address" value="${order.delivery_address}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_delivery_type">Тип доставки *</label>
+                    <select id="edit_delivery_type" name="delivery_type" required>
+                        <option value="now" ${order.delivery_type === 'now' ? 'selected' : ''}>Сейчас</option>
+                        <option value="by_time" ${order.delivery_type === 'by_time' ? 'selected' : ''}>Ко времени</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="edit_delivery_time_group" style="${order.delivery_type === 'by_time' ? '' : 'display: none;'}">
+                    <label for="edit_delivery_time">Время доставки *</label>
+                    <input type="time" id="edit_delivery_time" name="delivery_time" value="${formatTimeForInput(order.delivery_time)}" min="07:00" max="23:00" step="300">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit_comment">Комментарий</label>
+                    <textarea id="edit_comment" name="comment" rows="3">${order.comment || ''}</textarea>
+                </div>
+            `;
+            
+            // Обработчик изменения типа доставки
+            const deliveryTypeSelect = document.getElementById('edit_delivery_type');
+            const timeGroup = document.getElementById('edit_delivery_time_group');
+            
+            deliveryTypeSelect.addEventListener('change', function() {
+                timeGroup.style.display = this.value === 'by_time' ? 'block' : 'none';
+                if (this.value !== 'by_time') {
+                    document.getElementById('edit_delivery_time').value = '';
+                }
+            });
+            
+            // Добавляем обработчик для поля времени доставки
+            const timeInput = document.getElementById('edit_delivery_time');
+            if (timeInput) {
+                timeInput.addEventListener('change', function() {
+                    if (deliveryTypeSelect.value === 'by_time' && !this.value) {
+                        this.setCustomValidity('Пожалуйста, выберите время доставки');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+            
+            openModal('editModal');
+        }
+
+        // Удаление заказа
+        function deleteOrder(orderId) {
+            currentOrderId = orderId;
+            openModal('deleteModal');
+        }
+
+        // Подтверждение удаления
+        async function confirmDelete() {
+            try {
+                const apiKey = localStorage.getItem('api_key');
+                if (!apiKey) {
+                    showNotification('Ошибка авторизации', 'error');
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/labs/api/orders/${currentOrderId}?api_key=${apiKey}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Ошибка при удалении заказа');
+                }
+
+                showNotification('Заказ успешно удалён', 'success');
+                closeModal('deleteModal');
+                await loadOrders(); // Обновляем список заказов
+            } catch (error) {
+                console.error('Ошибка при удалении заказа:', error);
+                showNotification(`Ошибка: ${error.message}`, 'error');
+            }
+        }
+
+        // Обработка отправки формы редактирования
+        document.getElementById('editOrderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                const apiKey = localStorage.getItem('api_key');
+                if (!apiKey) {
+                    showNotification('Ошибка авторизации', 'error');
+                    return;
+                }
+
+                const formData = {
+                    full_name: document.getElementById('edit_full_name').value.trim(),
+                    email: document.getElementById('edit_email').value.trim(),
+                    phone: document.getElementById('edit_phone').value.trim(),
+                    delivery_address: document.getElementById('edit_delivery_address').value.trim(),
+                    delivery_type: document.getElementById('edit_delivery_type').value,
+                    comment: document.getElementById('edit_comment').value.trim()
+                };
+
+                // Проверяем обязательные поля
+                if (!formData.full_name || !formData.email || !formData.phone || !formData.delivery_address) {
+                    showNotification('Пожалуйста, заполните все обязательные поля', 'error');
+                    return;
+                }
+
+                // Проверяем время доставки
+                if (formData.delivery_type === 'by_time') {
+                    const deliveryTime = document.getElementById('edit_delivery_time').value;
+                    if (!deliveryTime) {
+                        showNotification('Пожалуйста, укажите время доставки', 'error');
+                        return;
+                    }
+                    
+                    // Проверяем время доставки
+                    const time = new Date(`2000-01-01T${deliveryTime}`);
+                    const min = new Date('2000-01-01T07:00'), max = new Date('2000-01-01T23:00');
+                    if (time < min || time > max) {
+                        showNotification('Время доставки должно быть с 7:00 до 23:00', 'error');
+                        return;
+                    }
+                    
+                    const now = new Date(), selectedTime = new Date();
+                    const [h, m] = deliveryTime.split(':');
+                    selectedTime.setHours(parseInt(h), parseInt(m), 0, 0);
+                    if (selectedTime < now) {
+                        showNotification('Время доставки не может быть раньше текущего времени', 'error');
+                        return;
+                    }
+                    
+                    formData.delivery_time = deliveryTime;
+                }
+
+                const response = await fetch(`${API_BASE}/labs/api/orders/${currentOrderId}?api_key=${apiKey}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Ошибка при обновлении заказа');
+                }
+
+                showNotification('Заказ успешно изменён', 'success');
+                closeModal('editModal');
+                await loadOrders(); // Обновляем список заказов
+            } catch (error) {
+                console.error('Ошибка при обновлении заказа:', error);
+                showNotification(`Ошибка: ${error.message}`, 'error');
+            }
+        });
+
+        // Управление модальными окнами
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Блокируем прокрутку страницы
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Возвращаем прокрутку
+            currentOrderId = null;
+            
+            // Очищаем форму при закрытии
+            if (modalId === 'editModal') {
+                document.getElementById('editOrderForm').reset();
+            }
+        }
+
+        // Закрытие модальных окон при клике вне их
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                currentOrderId = null;
+            }
+        }
+        
+        // Закрытие модальных окон при нажатии ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (modal.style.display === 'block') {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                        currentOrderId = null;
+                    }
+                });
+            }
+        });
+
+        // Показать уведомление
+        function showNotification(message, type = 'info') {
+            // Удаляем предыдущие уведомления
+            const oldNotifications = document.querySelectorAll('.notification-alert');
+            oldNotifications.forEach(n => n.remove());
+            
+            // Создаем новое уведомление
+            const notification = document.createElement('div');
+            notification.className = 'notification-alert';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#007bff'};
+                color: white;
+                border-radius: 5px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+                word-wrap: break-word;
+            `;
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Добавляем стили для анимации
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            
+            /* Добавляем отступ для модальных окон на мобильных */
+            @media (max-width: 480px) {
+                .modal-content {
+                    margin: 5% auto;
+                    padding: 15px;
+                }
+                
+                .form-group {
+                    margin-bottom: 15px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
