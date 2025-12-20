@@ -1,3 +1,4 @@
+// Загрузка с API
 let dishes = [];
 
 async function loadDishes() {
@@ -332,6 +333,13 @@ async function submitOrder(event) {
         comment: document.getElementById('comment').value,
         subscribe: document.getElementById('subscribe').checked ? 1 : 0
     };
+    
+    if (deliveryTime) orderData.delivery_time = deliveryTime;
+    if (selected.soup) orderData.soup_id = selected.soup;
+    if (selected.main) orderData.main_course_id = selected.main;
+    if (selected.salad) orderData.salad_id = selected.salad;
+    if (selected.drink) orderData.drink_id = selected.drink;
+    if (selected.dessert) orderData.dessert_id = selected.dessert;
     
     try {
         const apiKey = localStorage.getItem('api_key');
